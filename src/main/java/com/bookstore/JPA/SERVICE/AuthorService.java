@@ -2,9 +2,7 @@ package com.bookstore.JPA.SERVICE;
 
 import com.bookstore.JPA.DTOs.AuthorRecord;
 import com.bookstore.JPA.MODELs.Author;
-import com.bookstore.JPA.MODELs.AuthorBook;
 import com.bookstore.JPA.MODELs.Book;
-import com.bookstore.JPA.REPOSITORIES.AuthorBookRepository;
 import com.bookstore.JPA.REPOSITORIES.AuthorRepository;
 import com.bookstore.JPA.REPOSITORIES.BookRepository;
 import jakarta.transaction.Transactional;
@@ -24,22 +22,85 @@ public class AuthorService{
     @Autowired
     private AuthorRepository authorRepository;
     @Autowired
-    private AuthorBookRepository authorBookRepository;
-    @Autowired
     private BookRepository bookRepository;
 
     @Transactional
     public Author saveAuthor(AuthorRecord authorRecord){
-        Author author = new Author();
-        author.setName(authorRecord.name());
+        var author = new Author();
+        BeanUtils.copyProperties(authorRecord,author);
         return authorRepository.save(author);
     }
 
     @Transactional
-    public Set<Book> listBooksByAuthor(UUID id){
-        List<UUID> authorBookList =
-                authorBookRepository.findBookIdByAuthorId(id);
-        return bookRepository.findAllById(authorBookList).stream().collect(Collectors.toSet());
+    public Object listBooksByAuthor(UUID id){
+        Optional<Author> authorO = authorRepository.findById(id);
+        if(authorO.isEmpty()){
+            return "Author not found.";
+        }
+        Set<Book> books =  authorO.get().getBooks();
+        if(books.isEmpty()){
+            return "Author don't have books yet.";
+        }
+        return books;
     }
+
+    @Transactional
+    public Object listAllAuthors(){
+        List<Author> authors = authorRepository.findAll();
+        if(authors.isEmpty()){
+            return "There aren't authors in system.";
+        }
+        return authors;
+    }
+
+    @Transactional
+    public Object listOneAuthor(UUID id){
+        Optional<Author> authorO = authorRepository.findById(id);
+        if(authorO.isEmpty()){
+            return "Author not found";
+        }
+        return authorO.get();
+    }
+
+    @Transactional
+    public String deleteAuthor(UUID id){
+        Optional<Author> authorO = authorRepository.findById(id);
+        if(authorO.isEmpty()){
+            return "Author not found.";
+        }
+        authorRepository.delete(authorO.get());
+        return "Delete author was doing with success.";
+    }
+
+    @Transactional
+    public String deleteAuthors(List<UUID> ids){
+        UUID idAuthor = null;
+        try {
+            for (UUID id : ids) {
+                Optional<Author> authorO = authorRepository.findById(id);
+                if (authorO.isEmpty()) {
+                    idAuthor = id;
+                    throw new Exception();
+                }
+                authorRepository.delete(authorO.get());
+            }
+        }catch(Exception e){
+            return "Author with ID = " + idAuthor + ". Not found.";
+        }
+        return "The process of delete authors was success.";
+    }
+
+    @Transactional
+    public Object updateAuthor(UUID id, AuthorRecord authorRecord){
+        Optional<Author> authorO = authorRepository.findById(id);
+        if(authorO.isEmpty()){
+            return "Author not found";
+        }
+        Author author = authorO.get();
+        BeanUtils.copyProperties(authorRecord,author);
+        return authorRepository.save(author);
+    }
+
+
 
 }

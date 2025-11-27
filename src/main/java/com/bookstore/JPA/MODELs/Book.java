@@ -1,5 +1,6 @@
 package com.bookstore.JPA.MODELs;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -20,11 +21,16 @@ public class Book implements Serializable {
     @Column(nullable = false, unique = true)
     private String title;
 
-    @ManyToOne
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ManyToOne//(fetch = FetchType.LAZY)
     @JoinColumn(name="publisher_id")
     private Publisher publisher;
 
-    @ManyToMany
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ManyToMany//(fetch= FetchType.LAZY)
+//    Vai mostrar tudo sobre o author na hora do response, para isso que
+//    serve o LAZY, por dafault, ele vem como EAGER (ansioso) que mostra tudo
+//    sobre o author.
     @JoinTable(
             name= "tb_author_book",
             joinColumns = @JoinColumn(name= "book_id"),
@@ -42,7 +48,6 @@ public class Book implements Serializable {
 //    ou atualização, por exemplo, é melhor ter um controle do que vai sair
 //    ou atualizar do que apenas deixar ao sistema.
     private Review review;
-
 
     public UUID getId() {return id;}
 
