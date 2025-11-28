@@ -1,8 +1,8 @@
 package com.bookstore.JPA.REPOSITORIES;
 
 
-import com.bookstore.JPA.DTOs.BookRecord;
-import com.bookstore.JPA.DTOs.BookSummaryRecord;
+import com.bookstore.JPA.DTOs.Book.BookSummaryRecord;
+import com.bookstore.JPA.MODELs.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,13 +13,15 @@ import java.util.UUID;
 
 
 @Repository
-public interface BookSummaryRepository extends JpaRepository<BookRecord,
+public interface BookSummaryRepository extends JpaRepository<Book,
         UUID> {
-    @Query("SELECT new com.bookstore.JPA.DTOs.BookSummaryRecord(b.id,b.title,b" +
+    @Query("SELECT new com.bookstore.JPA.DTOs.Book.BookSummaryRecord(b.id,b" +
+            ".title,b" +
             ".review) FROM Book b")
     List<BookSummaryRecord> findBookSummary();
 
-    @Query("SELECT new com.bookstore.JPA.DTOs.BookSummaryRecord(b.id,b.title,b" +
+    @Query("SELECT new com.bookstore.JPA.DTOs.Book.BookSummaryRecord(b.id,b" +
+            ".title,b" +
             ".review) FROM Book b WHERE b.id = :id")
     BookSummaryRecord findBookSummary(@Param("id") UUID id);
 }

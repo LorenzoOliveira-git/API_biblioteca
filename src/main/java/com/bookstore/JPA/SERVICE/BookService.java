@@ -1,7 +1,7 @@
 package com.bookstore.JPA.SERVICE;
 
-import com.bookstore.JPA.DTOs.BookRecord;
-import com.bookstore.JPA.DTOs.BookSummaryRecord;
+import com.bookstore.JPA.DTOs.Book.BookRecord;
+import com.bookstore.JPA.DTOs.Book.BookSummaryRecord;
 import com.bookstore.JPA.MODELs.*;
 import com.bookstore.JPA.REPOSITORIES.AuthorRepository;
 import com.bookstore.JPA.REPOSITORIES.BookRepository;
@@ -10,22 +10,29 @@ import com.bookstore.JPA.REPOSITORIES.PublisherRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class BookService {
 
-    @Autowired
-    private BookRepository bookRepository;
-    @Autowired
-    private AuthorRepository authorRepository;
-    @Autowired
-    private PublisherRepository publisherRepository;
-    @Autowired
-    private BookSummaryRepository bookSummaryRepository;
+    BookRepository bookRepository;
+    AuthorRepository authorRepository;
+    PublisherRepository publisherRepository;
+    BookSummaryRepository bookSummaryRepository;
+
+    public BookService(BookRepository bookRepository,
+                       AuthorRepository authorRepository,
+                       PublisherRepository publisherRepository,
+                       BookSummaryRepository bookSummaryRepository){
+        this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
+        this.publisherRepository = publisherRepository;
+        this.bookSummaryRepository = bookSummaryRepository;
+    }
+
 
     @Transactional // serve para implementar a função de Roolback caso haja
     // um erro no processo.
@@ -33,25 +40,30 @@ public class BookService {
         Book book = new Book();
         try {
             book.setTitle(bookRecord.title());
-            Optional<Publisher> publisherO =
-                    publisherRepository.findById(bookRecord.publisher_id());
-            if(publisherO.isEmpty()){
-                throw new Exception("Publisher not found.");
+            UUID idPublisher = bookRecord.publisher_id();
+            if(idPublisher != null){
+                Optional<Publisher> publisherO =
+                        publisherRepository.findById(idPublisher);
+                book.setPublisher(publisherO.get());
             }
-            book.setPublisher(publisherO.get());
             Set<Author> authors = new HashSet<>();
-            for(UUID id: bookRecord.authorIds()){
-                Optional<Author> authorO = authorRepository.findById(id);
-                if(authorO.isEmpty()){
-                    throw new Exception("Author with ID = "+id+". Not found.");
+            Set<UUID> idsAuthors = bookRecord.authorIds();
+            if(!idsAuthors.isEmpty()) {
+                for (UUID id : idsAuthors) {
+                    Optional<Author> authorO = authorRepository.findById(id);
+                    if (authorO.isEmpty()) {
+                        throw new Exception("Author with ID = " + id + ". Not found.");
+                    }
+                    authors.add(authorO.get());
                 }
-                authors.add(authorO.get());
+                book.setAuthors(authors);
             }
-            book.setAuthors(authors);
-            Review review = new Review();
-            review.setComment(bookRecord.reviewComment());
-            review.setBook(book);
-            book.setReview(review);
+            if(!bookRecord.reviewComment().isEmpty()) {
+                Review review = new Review();
+                review.setComment(bookRecord.reviewComment());
+                review.setBook(book);
+                book.setReview(review);
+            }
         }catch(Exception e){
             return e.getMessage();
         }

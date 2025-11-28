@@ -1,4 +1,4 @@
-package com.bookstore.JPA.DTOs;
+package com.bookstore.JPA.DTOs.Author;
 
 
 import jakarta.validation.constraints.NotBlank;

@@ -1,9 +1,8 @@
-package com.bookstore.JPA.DTOs;
+package com.bookstore.JPA.DTOs.Publisher;
 
 
 import com.bookstore.JPA.MODELs.Book;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.Set;
 

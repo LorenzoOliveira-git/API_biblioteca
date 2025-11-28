@@ -1,4 +1,4 @@
-package com.bookstore.JPA.DTOs;
+package com.bookstore.JPA.DTOs.Review;
 
 import com.bookstore.JPA.MODELs.Book;
 import com.fasterxml.jackson.annotation.JsonProperty;

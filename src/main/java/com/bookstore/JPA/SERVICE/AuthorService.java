@@ -1,6 +1,7 @@
 package com.bookstore.JPA.SERVICE;
 
-import com.bookstore.JPA.DTOs.AuthorRecord;
+import com.bookstore.JPA.DTOs.Author.AuthorBooksRecord;
+import com.bookstore.JPA.DTOs.Author.AuthorRecord;
 import com.bookstore.JPA.MODELs.Author;
 import com.bookstore.JPA.MODELs.Book;
 import com.bookstore.JPA.REPOSITORIES.AuthorRepository;
@@ -8,27 +9,40 @@ import com.bookstore.JPA.REPOSITORIES.BookRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class AuthorService{
 
-    @Autowired
-    private AuthorRepository authorRepository;
-    @Autowired
-    private BookRepository bookRepository;
+    AuthorRepository authorRepository;
+
+    public AuthorService(AuthorRepository authorRepository){
+        this.authorRepository = authorRepository;
+    }
 
     @Transactional
     public Author saveAuthor(AuthorRecord authorRecord){
         var author = new Author();
         BeanUtils.copyProperties(authorRecord,author);
         return authorRepository.save(author);
+    }
+
+    public Object saveBooksOfAuthor(UUID id,
+                                        AuthorBooksRecord authorBooksRecord){
+        if(authorBooksRecord == null){
+            return "Insert values to save in the system.";
+        }
+        Optional<Author> author = authorRepository.findById(id);
+        if(author.isEmpty()){
+            return "Author not found";
+        }
+        Set<Book> books = new HashSet<>();
+        BeanUtils.copyProperties(authorBooksRecord,books);
+        BeanUtils.copyProperties(books,author);
+        return author;
     }
 
     @Transactional

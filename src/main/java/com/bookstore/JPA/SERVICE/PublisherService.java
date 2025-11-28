@@ -1,7 +1,6 @@
 package com.bookstore.JPA.SERVICE;
 
-import com.bookstore.JPA.DTOs.PublisherRecord;
-import com.bookstore.JPA.MODELs.Author;
+import com.bookstore.JPA.DTOs.Publisher.PublisherRecord;
 import com.bookstore.JPA.MODELs.Book;
 import com.bookstore.JPA.MODELs.Publisher;
 import com.bookstore.JPA.REPOSITORIES.PublisherRepository;
@@ -15,8 +14,11 @@ import java.util.*;
 @Service
 public class PublisherService {
 
-    @Autowired
-    private PublisherRepository publisherRepository;
+    PublisherRepository publisherRepository;
+
+    public PublisherService(PublisherRepository publisherRepository){
+        this.publisherRepository = publisherRepository;
+    }
 
     @Transactional
     public Publisher savePublisher(PublisherRecord publisherRecord){

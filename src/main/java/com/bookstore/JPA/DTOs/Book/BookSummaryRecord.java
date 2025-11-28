@@ -1,4 +1,4 @@
-package com.bookstore.JPA.DTOs;
+package com.bookstore.JPA.DTOs.Book;
 
 import com.bookstore.JPA.MODELs.Review;
 
