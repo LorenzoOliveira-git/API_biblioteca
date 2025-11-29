@@ -27,7 +27,7 @@ public class Book implements Serializable {
     private Publisher publisher;
 
     //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @ManyToMany//(fetch= FetchType.LAZY)
+    @ManyToMany(fetch= FetchType.EAGER)
 //    Vai mostrar tudo sobre o author na hora do response, para isso que
 //    serve o LAZY, por dafault, ele vem como EAGER (ansioso) que mostra tudo
 //    sobre o author.

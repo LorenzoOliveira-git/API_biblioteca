@@ -2,17 +2,18 @@ package com.bookstore.JPA.SERVICE;
 
 import com.bookstore.JPA.DTOs.Author.AuthorBooksRecord;
 import com.bookstore.JPA.DTOs.Author.AuthorRecord;
+import com.bookstore.JPA.DTOs.Author.ResponseAllAuthorRecord;
+import com.bookstore.JPA.DTOs.Author.ResponseAuthorRecord;
+import com.bookstore.JPA.DTOs.Book.BookSummaryRecord;
 import com.bookstore.JPA.MODELs.Author;
 import com.bookstore.JPA.MODELs.Book;
 import com.bookstore.JPA.REPOSITORIES.AuthorRepository;
-import com.bookstore.JPA.REPOSITORIES.BookRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthorService{
@@ -46,6 +47,56 @@ public class AuthorService{
     }
 
     @Transactional
+    public Object listAllAuthors(){
+        List<Author> authors = authorRepository.findAll();
+        if(authors.isEmpty()){
+            return "There aren't authors in system.";
+        }
+        return authors;
+    }
+
+    @Transactional
+    public Object listAllAuthorsWithBooks(){
+        List<Author> authors = authorRepository.findAll();
+        Set<ResponseAllAuthorRecord> authorBooksRecords = new HashSet<>();
+        for(Author author: authors){
+             authorBooksRecords.add(
+                     new ResponseAllAuthorRecord(
+                             author.getId(),
+                             author.getName(),
+                             author.getBooks().stream().map(
+                                     b -> new BookSummaryRecord(b.getId(),
+                                             b.getTitle(),b.getReview()))
+                                     .collect(Collectors.toSet())));
+        }
+        return authorBooksRecords;
+    }
+
+    @Transactional
+    public Object listOneAuthorWithBooks(UUID id){
+        Author author = authorRepository.findByIdWithBooks(id);
+        Set<BookSummaryRecord> books = author.
+                getBooks().
+                stream().
+                map(b -> new BookSummaryRecord(b.getId(),b.getTitle(),
+                        b.getReview())).collect(Collectors.toSet());
+        return new ResponseAllAuthorRecord(author.getId(),author.getName(),
+                books);
+    }
+
+    @Transactional
+    public Object listOneAuthor(UUID id){
+        Optional<Author> authorO =
+                authorRepository.findById(id);
+        if(authorO.isEmpty()){
+            return "Author not found.";
+        }
+        return new ResponseAuthorRecord(authorO.get().getId(),
+                authorO.get().getName());
+    }
+
+
+    @Transactional
     public Object listBooksByAuthor(UUID id){
         Optional<Author> authorO = authorRepository.findById(id);
         if(authorO.isEmpty()){
@@ -56,24 +107,6 @@ public class AuthorService{
             return "Author don't have books yet.";
         }
         return books;
-    }
-
-    @Transactional
-    public Object listAllAuthors(){
-        List<Author> authors = authorRepository.findAll();
-        if(authors.isEmpty()){
-            return "There aren't authors in system.";
-        }
-        return authors;
-    }
-
-    @Transactional
-    public Object listOneAuthor(UUID id){
-        Optional<Author> authorO = authorRepository.findById(id);
-        if(authorO.isEmpty()){
-            return "Author not found";
-        }
-        return authorO.get();
     }
 
     @Transactional
