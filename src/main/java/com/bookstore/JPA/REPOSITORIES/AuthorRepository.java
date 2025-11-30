@@ -12,4 +12,7 @@ import java.util.UUID;
 public interface AuthorRepository extends JpaRepository<Author, UUID> {
     @Query("SELECT a FROM Author a JOIN FETCH a.books WHERE a.id = :id")
     Author findByIdWithBooks(@Param("id") UUID id);
+
+    @Query("SELECT a FROM Author a WHERE a.name like :name")
+    Author findByName(@Param("name") String name);
 }

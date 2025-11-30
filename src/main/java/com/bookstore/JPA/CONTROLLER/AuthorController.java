@@ -1,13 +1,14 @@
 package com.bookstore.JPA.CONTROLLER;
 
 import com.bookstore.JPA.DTOs.Author.AuthorRecord;
-import com.bookstore.JPA.DTOs.Author.AuthorUUIDsRecord;
+import com.bookstore.JPA.DTOs.Author.UUIDsRecord;
 import com.bookstore.JPA.SERVICE.AuthorService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -23,47 +24,93 @@ public class AuthorController {
 
     @PostMapping
     public ResponseEntity<Object> saveAuthor(@RequestBody @Valid AuthorRecord authorRecord){
-        return ResponseEntity.status(HttpStatus.CREATED).body(authorService.saveAuthor(authorRecord));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(authorService.saveAuthor(authorRecord));
+        }catch(ResponseStatusException rse){
+            return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
+        }
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<Object> saveBooksOfAuthor(@PathVariable(name = "id")UUID id,
+                                                    @RequestBody UUIDsRecord uuidsRecord){
+        try{
+            return ResponseEntity.status(HttpStatus.CREATED).body(authorService.saveBooksOfAuthor(id,uuidsRecord));
+        }catch(ResponseStatusException rse){
+            return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
+        }
     }
 
     @GetMapping("allInfo=false")
     public ResponseEntity<Object> getAuthors(){
-        return ResponseEntity.status(HttpStatus.OK).body(authorService.listAllAuthors());
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.listAllAuthors());
+        }catch(ResponseStatusException rse){
+            return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
+        }
     }
 
     @GetMapping("allInfo=true")
     public ResponseEntity<Object> getAuthorsWithBooks(){
-        return ResponseEntity.status(HttpStatus.OK).body(authorService.listAllAuthorsWithBooks());
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.listAllAuthorsWithBooks());
+        }catch(ResponseStatusException rse){
+            return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
+        }
     }
 
     @GetMapping("/{id}/allInfo=true")
-    public ResponseEntity<Object> getAllInfoAuthor(@PathVariable(name = "id")UUID id){
-        return ResponseEntity.status(HttpStatus.OK).body(authorService.listOneAuthorWithBooks(id));
+    public ResponseEntity<Object> getAuthorWithBooks(@PathVariable(name = "id")UUID id){
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.listOneAuthorWithBooks(id));
+        }catch(ResponseStatusException rse){
+            return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
+        }
     }
 
     @GetMapping("/{id}/allInfo=false")
-    public ResponseEntity<Object> getSomeInfoAuthor(@PathVariable(name = "id")UUID id){
-        return ResponseEntity.status(HttpStatus.OK).body(authorService.listOneAuthor(id));
+    public ResponseEntity<Object> getAuthor(@PathVariable(name = "id")UUID id){
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.listOneAuthor(id));
+        }catch(ResponseStatusException rse){
+            return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
+        }
     }
 
 
     @GetMapping("/books/{id}")
     public ResponseEntity<Object> getBooksByAuthor(@PathVariable(name = "id") UUID id){
-        return ResponseEntity.status(HttpStatus.OK).body(authorService.listBooksByAuthor(id));
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.listBooksByAuthor(id));
+        }catch(ResponseStatusException rse){
+            return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteAuthor(@PathVariable(name = "id")UUID id){
-        return ResponseEntity.status(HttpStatus.OK).body(authorService.deleteAuthor(id));
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.deleteAuthor(id));
+        }catch(ResponseStatusException rse){
+            return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
+        }
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteAuthors(@RequestBody AuthorUUIDsRecord authorUUIDsRecord){
-        return ResponseEntity.status(HttpStatus.OK).body(authorService.deleteAuthors(authorUUIDsRecord.listUUIDs()));
+    public ResponseEntity<String> deleteAuthors(@RequestBody UUIDsRecord uuidsRecord){
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.deleteAuthors(uuidsRecord));
+        }catch(ResponseStatusException rse){
+            return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateAuthor(@PathVariable(name = "id") UUID id, @RequestBody AuthorRecord authorRecord){
-        return ResponseEntity.status(HttpStatus.OK).body(authorService.updateAuthor(id,authorRecord));
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.updateAuthor(id, authorRecord));
+        }catch(ResponseStatusException rse){
+            return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
+        }
     }
 }
