@@ -27,9 +27,14 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.CREATED).body(bookService.saveBook(bookRecord));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> getBook(@PathVariable(name = "id")UUID id){
-        return ResponseEntity.status(HttpStatus.OK).body(bookService.getAllInfo(id));
+//    @GetMapping("/{id}")
+//    public ResponseEntity<Object> getBook(@PathVariable(name = "id")UUID id){
+//        return ResponseEntity.status(HttpStatus.OK).body(bookService.getBookWithAuthorsAndPublisher(id));
+//    }
+
+    @GetMapping
+    public ResponseEntity<Object> getBooks(){
+        return ResponseEntity.status(HttpStatus.OK).body(bookService.listBooksWithAuthorsAndPublisher());
     }
 
 }

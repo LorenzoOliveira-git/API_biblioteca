@@ -3,8 +3,8 @@ package com.bookstore.JPA.SERVICE;
 import com.bookstore.JPA.DTOs.Author.AuthorRecord;
 import com.bookstore.JPA.DTOs.Author.ResponseAllAuthorRecord;
 import com.bookstore.JPA.DTOs.Author.ResponseAuthorRecord;
-import com.bookstore.JPA.DTOs.Author.UUIDsRecord;
-import com.bookstore.JPA.DTOs.Book.BookSummaryRecord;
+import com.bookstore.JPA.DTOs.UUIDsRecord;
+import com.bookstore.JPA.DTOs.Book.ResponseBookRecord;
 import com.bookstore.JPA.MODELs.Author;
 import com.bookstore.JPA.MODELs.Book;
 import com.bookstore.JPA.REPOSITORIES.AuthorRepository;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class AuthorService{
 
-    private final BookRepository bookRepository;
+    BookRepository bookRepository;
     AuthorRepository authorRepository;
 
     public AuthorService(AuthorRepository authorRepository, BookRepository bookRepository){
@@ -33,7 +33,7 @@ public class AuthorService{
     public ResponseAuthorRecord saveAuthor(AuthorRecord authorRecord) throws ResponseStatusException{
         var author = new Author();
         BeanUtils.copyProperties(authorRecord,author);
-        if(authorRepository.findByName(author.getName()) != null){
+        if(!authorRepository.findByName(author.getName()).isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"This " +
                     "author already was registre.");
         }
@@ -62,11 +62,11 @@ public class AuthorService{
                 author.get()
                         .getBooks()
                         .stream()
-                        .map(b -> new BookSummaryRecord(b.getId(),b.getTitle(),b.getReview()))
+                        .map(b -> new ResponseBookRecord(b.getId(),b.getTitle(),b.getReview()))
                         .collect(Collectors.toSet()));
     }
 
-    public List<ResponseAuthorRecord> listAllAuthors() throws ResponseStatusException{
+    public List<ResponseAuthorRecord> listAuthors() throws ResponseStatusException{
         List<ResponseAuthorRecord> authors = authorRepository
                 .findAll()
                 .stream()
@@ -79,7 +79,7 @@ public class AuthorService{
         return authors;
     }
 
-    public List<ResponseAllAuthorRecord> listAllAuthorsWithBooks() throws ResponseStatusException{
+    public List<ResponseAllAuthorRecord> listAuthorsWithBooks() throws ResponseStatusException{
         List<ResponseAllAuthorRecord> authorBooksRecords =
                 authorRepository.
                         findAll().
@@ -88,7 +88,7 @@ public class AuthorService{
                                 a.getName(),
                                 a.getBooks()
                                         .stream()
-                                        .map(b -> new BookSummaryRecord(b.getId(),b.getTitle(),b.getReview()))
+                                        .map(b -> new ResponseBookRecord(b.getId(),b.getTitle(),b.getReview()))
                                         .collect(Collectors.toSet())))
                         .collect(Collectors.toList());
         if(authorBooksRecords.isEmpty()){
@@ -98,20 +98,21 @@ public class AuthorService{
         return authorBooksRecords;
     }
 
-    public ResponseAllAuthorRecord listOneAuthorWithBooks(UUID id) throws ResponseStatusException{
-        var author = authorRepository.findByIdWithBooks(id);
-        if(author == null){
+    public ResponseAllAuthorRecord getAuthorWithBooks(UUID id) throws ResponseStatusException{
+        Optional<Author> authorO = authorRepository.findById(id);
+        if(authorO.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Author " +
                     "not found");
         }
-        Set<BookSummaryRecord> books = author.getBooks().stream().
-                map(b -> new BookSummaryRecord(b.getId(),b.getTitle(),
-                        b.getReview())).collect(Collectors.toSet());
-        return new ResponseAllAuthorRecord(author.getId(),author.getName(),
-                books);
+        return new ResponseAllAuthorRecord(authorO.get().getId(),
+                authorO.get().getName(),
+                authorO.get().getBooks()
+                        .stream()
+                        .map(b -> new ResponseBookRecord(b.getId(),b.getTitle(),b.getReview()))
+                        .collect(Collectors.toSet()));
     }
 
-    public ResponseAuthorRecord listOneAuthor(UUID id) throws ResponseStatusException{
+    public ResponseAuthorRecord getAuthor(UUID id) throws ResponseStatusException{
         Optional<Author> authorO =
                 authorRepository.findById(id);
         if(authorO.isEmpty()){
@@ -122,17 +123,17 @@ public class AuthorService{
                 authorO.get().getName());
     }
 
-    public Set<BookSummaryRecord> listBooksByAuthor(UUID id) throws ResponseStatusException{
+    public Set<ResponseBookRecord> listBooksByAuthor(UUID id) throws ResponseStatusException{
         Optional<Author> authorO = authorRepository.findById(id);
         if(authorO.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Author " +
                     "not found.");
         }
-        Set<BookSummaryRecord> books =
+        Set<ResponseBookRecord> books =
                 authorO.get()
                         .getBooks()
                         .stream()
-                        .map(b -> new BookSummaryRecord(b.getId(),b.getTitle(),b.getReview()))
+                        .map(b -> new ResponseBookRecord(b.getId(),b.getTitle(),b.getReview()))
                         .collect(Collectors.toSet());
         if(books.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Author " +
@@ -187,7 +188,7 @@ public class AuthorService{
         return new ResponseAllAuthorRecord(id,author.getName(),
                 author.getBooks().
                         stream().
-                        map(b -> new BookSummaryRecord(b.getId(),b.getTitle(),b.getReview())).
+                        map(b -> new ResponseBookRecord(b.getId(),b.getTitle(),b.getReview())).
                         collect(Collectors.toSet()));
     }
 

@@ -1,4 +1,4 @@
-package com.bookstore.JPA.DTOs.Author;
+package com.bookstore.JPA.DTOs;
 
 import java.util.List;
 import java.util.UUID;

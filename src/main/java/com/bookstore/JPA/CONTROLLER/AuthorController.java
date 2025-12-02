@@ -1,7 +1,7 @@
 package com.bookstore.JPA.CONTROLLER;
 
 import com.bookstore.JPA.DTOs.Author.AuthorRecord;
-import com.bookstore.JPA.DTOs.Author.UUIDsRecord;
+import com.bookstore.JPA.DTOs.UUIDsRecord;
 import com.bookstore.JPA.SERVICE.AuthorService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -44,7 +44,7 @@ public class AuthorController {
     @GetMapping("allInfo=false")
     public ResponseEntity<Object> getAuthors(){
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(authorService.listAllAuthors());
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.listAuthors());
         }catch(ResponseStatusException rse){
             return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
         }
@@ -53,7 +53,7 @@ public class AuthorController {
     @GetMapping("allInfo=true")
     public ResponseEntity<Object> getAuthorsWithBooks(){
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(authorService.listAllAuthorsWithBooks());
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.listAuthorsWithBooks());
         }catch(ResponseStatusException rse){
             return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
         }
@@ -62,7 +62,7 @@ public class AuthorController {
     @GetMapping("/{id}/allInfo=true")
     public ResponseEntity<Object> getAuthorWithBooks(@PathVariable(name = "id")UUID id){
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(authorService.listOneAuthorWithBooks(id));
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.getAuthorWithBooks(id));
         }catch(ResponseStatusException rse){
             return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
         }
@@ -71,7 +71,7 @@ public class AuthorController {
     @GetMapping("/{id}/allInfo=false")
     public ResponseEntity<Object> getAuthor(@PathVariable(name = "id")UUID id){
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(authorService.listOneAuthor(id));
+            return ResponseEntity.status(HttpStatus.OK).body(authorService.getAuthor(id));
         }catch(ResponseStatusException rse){
             return ResponseEntity.status(rse.getStatusCode()).body(rse.getMessage());
         }
