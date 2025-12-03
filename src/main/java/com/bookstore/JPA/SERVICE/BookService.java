@@ -190,8 +190,8 @@ public class BookService {
     }
 
     @Transactional
-    public String deleteBooks(List<UUID> ids) throws ResponseStatusException{
-        for(UUID id: ids){
+    public String deleteBooks(UUIDsRecord listUUIDs) throws ResponseStatusException{
+        for(UUID id: listUUIDs.listUUIDs()){
             Optional<Book> bookO = bookRepository.findById(id);
             if(bookO.isEmpty()){
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Book " +
@@ -255,5 +255,20 @@ public class BookService {
                 new ResponseBookRecord(review.getBook().getId(),
                         review.getBook().getTitle(),
                         review.getBook().getReview()));
+    }
+
+    public List<ResponseReviewRecord> getReviews() throws ResponseStatusException{
+        List<Review> reviews = reviewRepository.findAll();
+        if(reviews.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"There " +
+                    "aren't reviews in the system yet.");
+        }
+        return reviews.
+                stream().
+                map(r -> new ResponseReviewRecord(r.getId(),r.getComment(),
+                        new ResponseBookRecord(r.getBook().getId(),
+                            r.getBook().getTitle(),
+                                r.getBook().getReview()))).
+                collect(Collectors.toList());
     }
 }
